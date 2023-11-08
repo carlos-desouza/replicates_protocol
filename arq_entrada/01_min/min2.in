@@ -1,0 +1,12 @@
+#  
+# Minimizacion 2
+#
+ &cntrl
+  imin=1,maxcyc=100000,ncyc=20000,
+  drms=0.01,ntb=1,ntp=0,cut=9.0,
+  ibelly=0,
+ &end
+minimizacion de las aguas
+RES 1 263
+END
+END

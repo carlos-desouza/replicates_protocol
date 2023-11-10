@@ -14,8 +14,8 @@ module load md/amber20
 export Exec=pmemd.cuda
 export Parm='step3_input.parm7'
 export Topo='step3_input.crd'
-export minrc="../arq_entrada/01_min"
-export equilrc='../arq_entrada/02_equil/313.15k'
+export minrc=../arq_entrada/01_min
+export equilrc=../arq_entrada/02_equil/313.15k
 #--------------------------------------------------------------------------------------------------------------------------##
 ## Min1
 $Exec -O -i $minrc/min1.in -p $Parm -c $Topo -o min1.out -r min1.rst -ref $Topo
@@ -25,7 +25,7 @@ $Exec -O -i $minrc/min4.in -p $Parm -c min3.rst -o min4.out -r min4.rst -ref min
 $Exec -O -i $minrc/min5.in -p $Parm -c min4.rst -o min5.out -r min5.rst -ref min4.rst
 $Exec -O -i $minrc/min6.in -p $Parm -c min5.rst -o min6.out -r min6.rst -ref min5.rst
 $Exec -O -i $minrc/min7.in -p $Parm -c min6.rst -o min7.out -r min7.rst -ref min6.rst
-## Min2
+# Min2
 $Exec -O -i $minrc/min1.in -p $Parm -c min7.rst -o min1.out -r min1.rst -ref min7.rst
 $Exec -O -i $minrc/min2.in -p $Parm -c min1.rst -o min2.out -r min2.rst -ref min1.rst
 $Exec -O -i $minrc/min3.in -p $Parm -c min2.rst -o min3.out -r min3.rst -ref min2.rst
@@ -45,17 +45,17 @@ $Exec -O -i $equilrc/equil4.in -p $Parm -c equil3.rst -o equil4.out -r equil4.rs
 $Exec -O -i $equilrc/equil5.in -p $Parm -c equil4.rst -o equil5.out -r equil5.rst -x equil5.mdcrd -ref equil4.rst
 $Exec -O -i $equilrc/equil6.in -p $Parm -c equil5.rst -o equil6.out -r equil6.rst -x equil6.mdcrd -ref equil5.rst
 $Exec -O -i $equilrc/equil7.in -p $Parm -c equil6.rst -o equil7.out -r equil7.rst -x equil7.mdcrd -ref equil6.rst
-$Exec -O -i $equilrc/equil8.in -p $Parm -c equil7.rst -o equil8.out -r equil8.rst -x equil8.mdcrd -ref equil7.rst 
+$Exec -O -i $equilrc/equil8.in -p $Parm -c equil7.rst -o equil8.out -r equil8.rst -x equil8.mdcrd -ref equil7.rst
 $Exec -O -i $equilrc/equil9.in -p $Parm -c equil8.rst -o equil9.out -r equil9.rst -x equil9.mdcrd -ref equil8.rst
 $Exec -O -i $equilrc/equil10.in -p $Parm -c equil9.rst -o equil10.out -r equil10.rst -x equil10.mdcrd -ref equil9.rst
 echo "------------------------------------------------"
 echo "      Aquecimento e equilibrio terminou!        "
 echo "------------------------------------------------"
-cp $equilrc/equil11.in $equilrc/prod.in .
+cp ../arq_entrada/03_production/prod.in .
 #--------------------------------------------------------------------------------------------------------------------------#
 export inicio=$PWD
-export destino=../02_replicas
-for ((i=1; i<=10; i++))                 # i é o número de replicas... mudar se precisar
+export destino=$PWD/../02_replicas
+for ((i=1; i<=2; i++))                 # i é o número de replicas... mudar se precisar
 do
     mkdir $destino/rep$i ; cp lanza_rep.sh $destino/rep$i/
     sed -i "s/TAL/$i/g" "$destino/rep$i/lanza_rep.sh"

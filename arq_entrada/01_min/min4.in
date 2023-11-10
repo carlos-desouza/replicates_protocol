@@ -7,4 +7,4 @@ Each of the four steps was realized in 5000 cycles with a cutoff of 20 Å.
  cut=9.0, ntb=1,                                                      
  maxcyc=100000,ncyc=50000,                                                      
  ntpr=500, ntwr=100, ntwx=1000,                                        
- ntr=1, restraint_wt = 250.0, restraintmask = ':1-263', / 
+ ntr=1, restraint_wt = 250.0, restraintmask = ':1-201', / 

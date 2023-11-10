@@ -7,5 +7,5 @@ stage 12: MD production at NTP
  ntpr = 5000, ntwx = 5000, ntwr = 500000, 
  ntt = 3, gamma_ln = 2.0, 
  nscm = 0, 
- temp0 = 323.15, 
+ temp0 = 313.15, 
 &end

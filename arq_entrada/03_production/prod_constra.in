@@ -8,5 +8,5 @@ stage 12: MD production at NTP
  ntt = 3, gamma_ln = 2.0, 
  nscm = 0, 
  temp0 = 300.15, 
- ntr=1, restraint_wt = 5.0, restraintmask = '(:XYP<@15.0) & :XYP',
+ ntr=1, restraint_wt = 5.0, restraintmask = '(:PET<@15.0) & :PET',
 &end

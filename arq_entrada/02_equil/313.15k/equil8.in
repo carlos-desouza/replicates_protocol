@@ -11,7 +11,8 @@
       ntt=3, gamma_ln=1.0,
       nscm=100,
       temp0=250., tempi=225.,   ig=-1,
-      ntr=1, restraint_wt = 50.0, restraintmask = '(:XYP<@15.0) & :XYP',
+#      ntr=1, 
+#      restraint_wt = 50.0, restraintmask = '(:PET<@15.0) & :PET',
  &end
 
 

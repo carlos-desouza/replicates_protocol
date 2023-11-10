@@ -48,3 +48,4 @@ $Exec -O -i $equilrc/equil10.in -p $Parm -c equil9.rst -o equil10.out -r equil10
 cp $equilrc/equil11.in $equilrc/prod.in .
 
 echo "Etapa 1 terminou em:" ; date
+

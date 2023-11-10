@@ -4,5 +4,5 @@
  &cntrl
   imin=1,maxcyc=10000,ncyc=5000,
   drms=0.01,ntb=1,ntp=0,cut=9.0,
-  ntr=1, restraint_wt = 50.0, restraintmask = ':1-263', / 
+  ntr=1, restraint_wt = 50.0, restraintmask = ':1-201', / 
  &end

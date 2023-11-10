@@ -13,7 +13,11 @@ Alterar também o arquivo lanza_rep.sh na pasta 01 para condizer com as etapas q
 
 
 ########################## Créditos ###########################
+
           Escrito por: Carlos Gabriel da Silva de Souza
+          
           Adaptado do protocolo amber de Clauber Costa
+          
         E-mail para contato: carlosss_gabriel@hotmail.com
+        
 ##############################################################

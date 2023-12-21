@@ -47,6 +47,20 @@ elif plottype == "fel" or plottype == "FEL":
     plt.ylabel("PC2", fontdict = font)
     plt.colorbar()
     plt.savefig(str(sys.argv[3]), dpi=400, transparent=True, bbox_inches='tight')
+elif plottype == "fep" or plottype == "FEP":
+    from scipy.interpolate import interp1d
+    data = np.loadtxt(str(sys.argv[2]))
+    distance_x = np.array((data[:, 0]))
+    fep_y = np.array((data[:, 1]))
+    cubic_interpolation_model = interp1d(distance_x, fep_y, kind = "cubic")
+    X_=np.linspace(distance_x.min(), distance_x.max(), 500)
+    Y_=cubic_interpolation_model(X_)
+    plt.plot(X_, Y_)
+#    plt.title("FEP LEU LEU", fontdict = font_title)
+    plt.xlabel("Distance L65-L166 (Å)", fontdict = font)
+    plt.ylabel("FEP kcal/mol", fontdict = font)
+    plt.savefig(str(sys.argv[3]), dpi=600, transparent=True, bbox_inches='tight')
+    #plt.show()
 else:
     print("")
     print("")

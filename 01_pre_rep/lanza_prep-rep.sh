@@ -20,9 +20,9 @@ export equilrc=../arq_entrada/02_equil/300k
 echo "iniciou teu calculo" ; date
 for ((i=1; i<=7; i++)) ##Loop over min steps
 do
-    if (i=1)
-    do
-        $Exec -O -i $minrc/min($i).in -p $Parm -c $Topo -o min1.out -r min1.rst -ref $Topo
+    if [ i=1 ]
+    then
+        $Exec -O -i $minrc/min($i).in -p $Parm -c $Topo -o min($i).out -r min($i).rst -ref $Topo
     fi
     $Exec -O -i $minrc/min($i).in -p $Parm -c min($i-1).rst -o min($i).out -r min($i).rst -ref min($i-1).rst    
 done
@@ -31,8 +31,8 @@ echo "            Minimização terminou!              "
 echo "------------------------------------------------"
 for ((i=1; i<=9; i++)) ##Loop over equil steps
 do
-    if (i=1)
-    do
+    if [ i=1 ]
+    then
         $Exec -O -i $equilrc/equil($i).in -p $Parm -c min7.rst -o equil($i).out -r equil($i).rst -x equil($i).mdcrd -ref min7.rst
     fi
     $Exec -O -i $equilrc/equil($i).in -p $Parm -c equil($i-1).rst -o equil($i).out -r equil($i).rst -x equil($i).mdcrd -ref equil($i-1).rst  

@@ -21,9 +21,9 @@ for ((i=1; i<=10; i++)) ##Loop over equil steps
 do
     if (i=1)
     then
-        $Exec -O -i $Step1Dir/prod.in -p $Step1Dir/$Parm -c equil10.rst -o prod($i)0ns.out -r prod($i)0ns.rst -x prod($i)0ns.mdcrd -ref equil10.rst
+        $Exec -O -i $Step1Dir/prod_constra.in -p $Step1Dir/$Parm -c equil10.rst -o prod($i)0ns.out -r prod($i)0ns.rst -x prod($i)0ns.mdcrd -ref equil10.rst
     fi
-    $Exec -O -i $Step1Dir/prod.in -p $Step1Dir/$Parm -c prod($i-1)0ns.rst -o prod($i)0ns.out -r prod($i)0ns.rst -x prod($i)0ns.mdcrd -ref prod($i-1)0ns.rst 
+    $Exec -O -i $Step1Dir/prod_constra.in -p $Step1Dir/$Parm -c prod($i-1)0ns.rst -o prod($i)0ns.out -r prod($i)0ns.rst -x prod($i)0ns.mdcrd -ref prod($i-1)0ns.rst 
 done
 
 ## Ultima etapa de equilibrio + produção de 100ns

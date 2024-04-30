@@ -19,7 +19,7 @@ $Exec -O -i $Step1Dir/equil10.in -p $Step1Dir/$Parm -c $Step1Dir/equil9.rst -o e
 
 for ((i=1; i<=10; i++)) ##Loop over prod steps
 do
-    if (i=1)
+    if [ $i -eq 1 ]
     then
         $Exec -O -i $Step1Dir/prod_constra.in -p $Step1Dir/$Parm -c equil10.rst -o prod$(($i))0ns.out -r prod$(($i))0ns.rst -x prod$(($i))0ns.mdcrd -ref equil10.rst    #Last equil
     fi

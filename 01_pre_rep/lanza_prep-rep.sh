@@ -23,11 +23,9 @@ do
     if [ $i -eq 1 ]
     then
         $Exec -O -i $minrc/min$i.in -p $Parm -c $Topo -o min$i.out -r min$i.rst -ref $Topo
-    fi
-    if [ $i -gt 1 ]
-    then
+    else
         $Exec -O -i $minrc/min$i.in -p $Parm -c min$(($i-1)).rst -o min$i.out -r min$i.rst -ref min$(($i-1)).rst
-    fi    
+    fi
 done
 echo "------------------------------------------------"
 echo "            Minimização terminou!              "
@@ -37,12 +35,11 @@ do
     if [ $i -eq 1 ]
     then
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c min7.rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref min7.rst
+    else
+        $Exec -O -i $equilrc/equil$i.in -p $Parm -c equil$(($i-1)).rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref equil$(($i-1)).rst
     fi
-    if [ $i -gt 1 ]
-    then
-        $Exec -O -i $equilrc/equil$i.in -p $Parm -c equil$(($i-1)).rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref equil$(($i-1)).rst 
-    fi 
 done
+
 echo "------------------------------------------------"
 echo "      Aquecimento e equilibrio terminou!        "
 echo "------------------------------------------------"

@@ -1,23 +1,22 @@
-Protocolo dividido em três partes
+Claro! Aqui está a tradução para o inglês:
 
-## preparar sistema base
-.
+# Protocol Divided into Three Parts
+
+## Prepare Base System
+
 ---------------------------------------------------------------------------------------------------------------------------------------
-PROTOCOLO AMBER
 
-1) Calcular estados de protonação corretos para o sistema
-    Utilize o servidor pdb2pqr (https://server.poissonboltzmann.org/pdb2pqr) -> resultado *.pqr
-    utilize o servidor H++ (http://newbiophysics.cs.vt.edu/H++/)
-2) Preparar ligante
+### AMBER PROTOCOL
 
-Utiliza-se a estrutura do ligante do docking ou redocking para realizar uma 'frozen opt' no gaussian
----------------------------
-OBS. Ignore todos os:
-```alguma_coisa
-```
-Eles servirão apenas para destacar o texto
----------------------------
+1) Calculate the correct protonation states for the system.
+   Use the pdb2pqr server (https://server.poissonboltzmann.org/pdb2pqr) -> result *.pqr
+   Use the H++ server (http://newbiophysics.cs.vt.edu/H++/)
 
+2) Prepare the ligand.
+
+Use the docking or redocking structure of the ligand to perform a 'frozen opt' in Gaussian.
+
+--------------------------------------------------------------------------------------------
 ```py
 %Chk=lig.chk
 %nproc=4
@@ -42,167 +41,168 @@ H 0         8.61583       -3.31412       -1.35618
 F 0         1.10542        6.44055        0.88299
 ```
 
-Onde os atomos com o sufixo '-1' estarão com as coordenadas cartesianas fixas e os com sufixo '0' serão otimizados
-Os atomos que deverão ser otimizados no geral são os hidrogênios.
-Essa etapa nem sempre é necessária
+Atoms with the suffix '-1' will have fixed Cartesian coordinates, while those with the suffix '0' will be optimized. Generally, the atoms that should be optimized are the hydrogens. This step is not always necessary.
 
-
-Após isso, deve-se converter o arquivo .log ou .out gerado para pdb utilizando o obabel
-Então utilize o antechamber para gerar o input da carga gesp:
+After that, convert the generated .log or .out file to pdb using obabel. Then use antechamber to generate the input for the gesp charge:
 
 ```bash
 obabel -i log ligand_opt.log -o pdb -O ligand_opt.pdb
 antechamber -i ligand_opt.pdb -fi pdb -o ligand_resp.com -fo gcrt -gv 1 -ge ligand_resp.gesp
 ```
 
-Obs. Lembre-se de retirar o "opt" contido no cabeçalho do arquivo 'ligand_resp.com'
+**Note:** Remember to remove the "opt" from the header of the 'ligand_resp.com' file.
 
-Resultando em:
-# ligand.pdb (que contenha as coordenadas do sitio ativo)
-# ligand_resp.gesp ( que contenha as Cargas Resp cal. pelo Gaussian)
-# ligand_resp.log  ( que contenha as Cargas Resp cal. pelo Gaussian)
+Resulting in:
+- **ligand.pdb** (containing the coordinates of the active site)
+- **ligand_resp.gesp** (containing the RESP charges calculated by Gaussian)
+- **ligand_resp.log** (containing the RESP charges calculated by Gaussian)
 
-Esses arquivos serão utilizados na sequência de comando para obter o arquivo ligand.frcmod:
+These files will be used in the command sequence to obtain the ligand.frcmod file:
 ```bash
 antechamber -i ligand.pdb -fi pdb -o ligand.com -fo gcrt -gv 1 -ge ligand_resp.gesp
 antechamber -i ligand_resp.gesp -fi gesp -c wc -cf ligand_c.crg -o input.ac -fo ac
 antechamber -fi pdb -fo mol2 -i ligand.pdb -o ligand_resp.mol2 -c rc -cf ligand_c.crg -j 4 -at gaff
 parmchk2 -i ligand_resp.mol2 -f mol2 -o ligand.frcmod
 ```
-Agora, com os arquivos:
-# ligand.frcmod (contém os parametros de ligação, ângulo, diedro etc)
-# ligand_resp.mol2 (esse arq. contem as cargas e coordenadas do sitio ativo)
-# receptor.pdb (proteina já tratada com o pKa) 
 
-3) Prepare o complexo utilizado o tleap
+Now, with the files:
+- **ligand.frcmod** (contains the parameters for bond, angle, dihedral, etc.)
+- **ligand_resp.mol2** (this file contains the charges and coordinates of the active site)
+- **receptor.pdb** (protein already processed with pKa)
+
+3) Prepare the complex using tleap:
 
 ```bash
-leap -f leaprc.protein.ff14SB       #carregar o campo de força para proteínas
-source leaprc.gaff                  #carregar campo de força para ligante se houver
-source leaprc.water.tip3p           #carregar campo de força para a água ou solvente utilizado
-loadamberparams ligand.frcmod       #carrega os parâmetros do ligante
-LIG=loadmol2 ligand_resp.mol2       #Define LIG como o arquivo com as cargas e coordenadas do sítio ativo
-receptor = loadpdb receptor.pdb     #Define receptor como o arquivo pdb tratato com o pKa
-#Essa etapa só será necessária se houver ligações disulfeto
+leap -f leaprc.protein.ff14SB       # load the force field for proteins
+source leaprc.gaff                  # load the force field for ligands if any
+source leaprc.water.tip3p           # load the force field for water or solvent used
+loadamberparams ligand.frcmod       # load the ligand parameters
+LIG=loadmol2 ligand_resp.mol2       # define LIG as the file with the charges and coordinates of the active site
+receptor = loadpdb receptor.pdb     # define receptor as the pdb file processed with pKa
+# This step is only necessary if there are disulfide bonds
 bond receptor.289.SG receptor.273.SG       
 bond receptor.203.SG receptor.239.SG
 #
-complex = combine {receptor LIG}    #define complex como a combinação de receptor e LIG
+complex = combine {receptor LIG}    # define complex as the combination of receptor and LIG
 set default PBRadii mbondi2         
-saveamberparm LIG ligand.top ligand.crd             #salva a topologia e coordenada do ligante
-saveamberparm receptor receptor.top receptor.crd    #salva a topologia e coordenada do receptor
-saveamberparm complex complex.top complex.crd       #salva a topologia e coordenada do complexo
-savepdb complex complex.pdb                         #salva o pdb do complexo
-check LIG                                           #verifica se o ligante está ok
-check complex                                       #verifica se o complexo está ok
-charge complex                                      #mostra a final do complexo
+saveamberparm LIG ligand.top ligand.crd             # save the topology and coordinates of the ligand
+saveamberparm receptor receptor.top receptor.crd    # save the topology and coordinates of the receptor
+saveamberparm complex complex.top complex.crd       # save the topology and coordinates of the complex
+savepdb complex complex.pdb                         # save the pdb of the complex
+check LIG                                           # check if the ligand is okay
+check complex                                       # check if the complex is okay
+charge complex                                      # show the final charge of the complex
 
-addIons2 complex Na+ 0  #neutralize com Na+ caso a carga seja negativa (-)
-addIons2 complex Cl- 0   #neutralize com Cl- caso a carga seja positiva (+)
+addIons2 complex Na+ 0  # neutralize with Na+ if the charge is negative (-)
+addIons2 complex Cl- 0   # neutralize with Cl- if the charge is positive (+)
 
-solvateoct complex TIP3PBOX 12.0      #verifique o tipo de caixa (oct, box etc) e o tamanho dela antes de realizar essa etapa.
-saveamberparm complex complex_box.top complex_box.crd       #salva a topologia e coordenada do complexo solvatado
-savepdb complex complex_box.pdb                             #salva o pdb do complexo solvatado
-quit                                                        #termina a execução do programa
-#### Se fores usar um peptídeo no lugar de uma proteína utilize...
+solvateoct complex TIP3PBOX 12.0      # check the type of box (oct, box, etc.) and its size before performing this step.
+saveamberparm complex complex_box.top complex_box.crd       # save the topology and coordinates of the solvated complex
+savepdb complex complex_box.pdb                             # save the pdb of the solvated complex
+quit                                                        # end the program execution
+#### If you are using a peptide instead of a protein use...
 peptide = sequence { ACE ALA ALA ALA GLY ALA NME }
 #
 ```
-O processo terminará com os seguintes arquivos que serão utilizados para iniciar a produção:
 
-# ligand.top   (topologia do ligante/inibidor)
-# ligand.crd   (Coordenadas do ligante/inibidor)
-# receptor.top (topologia do receptor/proteina)
-# receptor.crd (Coordenadas do receptor/proteina)
-# complex.top   (topologia do complexo (receptor + ligante) no vacuo)
-# complex.crd   (Coordenadas do complexo (receptor + ligante) no vacuo)
-# complex.pdb   (arquivo do complexo (receptor + ligante) no vacuo para visualizar nos programas)
-# complex_box.top (topologia do complexo (receptor + ligante) solvatado com água)
-# complex_box.crd (Coordenadas do complexo (receptor + ligante) solvatado com água)
-# complex_box.pdb (arquivo do complexo (receptor + ligante) solvatado com água para visualizar nos programas)
+The process will end with the following files that will be used to initiate production:
 
-fim do protocolo amber
+- **ligand.top**   (topology of the ligand/inhibitor)
+- **ligand.crd**   (coordinates of the ligand/inhibitor)
+- **receptor.top** (topology of the receptor/protein)
+- **receptor.crd** (coordinates of the receptor/protein)
+- **complex.top**   (topology of the complex (receptor + ligand) in vacuum)
+- **complex.crd**   (coordinates of the complex (receptor + ligand) in vacuum)
+- **complex.pdb**   (pdb file of the complex (receptor + ligand) in vacuum for visualization in programs)
+- **complex_box.top** (topology of the solvated complex (receptor + ligand) with water)
+- **complex_box.crd** (coordinates of the solvated complex (receptor + ligand) with water)
+- **complex_box.pdb** (pdb file of the solvated complex (receptor + ligand) with water for visualization in programs)
+
+End of the AMBER protocol.
 ---------------------------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------------------------------
-Protocolo charmm-gui
-1) Calcular estados de protonação corretos para o sistema
-    Utilize o servidor pdb2pqr (https://server.poissonboltzmann.org/pdb2pqr) -> resultado *.pqr
-    utilize o servidor H++ (http://newbiophysics.cs.vt.edu/H++/)
-2) Preparar ligante
-    Mesmo processo de opt frozen do protocolo amber, porém as cargas e parâmetros serão calculados pelo servidor 
-    (https://cgenff.silcsbio.com/)
 
-A peculiaridade nesse caso é converter a saída da opt frozen para mol2 no lugar de pdb
+---------------------------------------------------------------------------------------------------------------------------------------
+
+### CHARMM-GUI Protocol
+
+1) Calculate the correct protonation states for the system.
+   Use the pdb2pqr server (https://server.poissonboltzmann.org/pdb2pqr) -> result *.pqr
+   Use the H++ server (http://newbiophysics.cs.vt.edu/H++/)
+
+2) Prepare the ligand.
+   Same frozen opt process as the AMBER protocol, but the charges and parameters will be calculated by the server 
+   (https://cgenff.silcsbio.com/)
+
+The peculiarity in this case is to convert the output of the frozen opt to mol2 instead of pdb:
 ```bash
 obabel -i log ligand_opt.log -o mol2 -O ligand_opt.mol2
-
 ```
-O resultado deverá ser dividido em dois arquivos:
-# ligand.rtf
-iniciará com:
-* Topologies generated by
 
-e terminará com:
-END
+The result should be divided into two files:
+- **ligand.rtf**
+  - starts with:
+  ```
+  * Topologies generated by
+  ```
+  - ends with:
+  ```
+  END
+  ```
 
-# ligand.prm
-iniciará com:
-* Parameters generated by analogy by
+- **ligand.prm**
+  - starts with:
+  ```
+  * Parameters generated by analogy by
+  ```
+  - ends with:
+  ```
+  END
+  ```
 
-e terminará com:
-END
+Do not forget to replace the residue name with a three-letter uppercase code in both files and also add a chain for the ligand, e.g., PET B 101.
 
-Não esqueça de substituir o nome do resíduo para um de três caracteres maiúsculos em ambos os arquivos
-E também de adicionar cadeia para o ligante
-Ex: PET B 101
+3) The formation of the complex should be done by joining the receptor.pqr and ligand.pdb files, which can be done using:
+```bash
+cat receptor.pqr ligand.pdb >> complex.pqr
+```
+Make sure the file is correct!
 
-3) A formação do complexo deve ser feita com a junção dos arquivos receptor.pqr e ligand.pdb
-    pode ser feita utilizando 
-    cat receptor.pqr ligand.pdb >> complex.pqr
-    Verifique se o arquivo está correto!!!!!!!
+Finally, the construction of the input files for dynamics production will be done through CHARMM-GUI (https://www.charmm-gui.org/) in the input generator > solution builder options, where the complex.pqr file will be inserted.
 
+...
+The following protocol consists of 7 minimization steps, which can be duplicated (recommended), 10 steps of heating and equilibration, and a production run of 100 ns of simulation, which can be modified depending on
 
-Por fim, a construção dos arquivos de entrada para a produção da dinâmica será feita pelo charmm-gui (https://www.charmm-gui.org/)
-Nas opções input generator > solution builder
+ the needs.
 
-Onde será inserido o arquivo complex.pqr
+The system will be fully minimized and equilibrated up to step 9, where it will be differentiated into replicas. Each replica will start with the tenth step of independent heating/equilibration, ensuring different initial velocities for each replica.
 
-... 
-O seguinte protocolo conta com 7 etapas de minimização, podendo ser em duplicata (recomendo)
-10 etapas de aquecimento e equilíbrio
-Produção de 100ns de simulação, podendo ser modificado dependendo da necessidade
-
-O sistema será minimizado totalmente e equilibrado até a etapa 9, onde será diferenciado em replicas
-Ou seja... cada réplica iniciará com a décima etapa de aquecimento/equilibrio independente
-Garantindo velocidades iniciais diferentes para cada réplica
-
-OBS.
+**NOTE:**
 -------------------------------------------------------------------------------------------------------------------
-##                  Aquecimento e Equilibrio em 10 etapas:
-#	ETAPA		TEMPERATURA (em Kelvin)		TEMPO		TIPO_de_Sistema
-#	equil 1		    0  	a	100 K		    20ps        NVT=Volume constante
-#	equil 2		    100	a	100 K		    1ns		    NPT=Pressão constante
-#	equil 3		    100	a	125 K		    1ns		    NPT=Pressão constante
-#	equil 4		    125	a	150 K		    1ns		    NPT=Pressão constante
-#	equil 5		    150	a	175 K		    1ns		    NPT=Pressão constante
-#	equil 6		    175	a	200 K		    1ns		    NPT=Pressão constante
-#	equil 7		    200	a	225 K		    1ns		    NPT=Pressão constante
-#	equil 8		    225	a	250 K		    1ns		    NPT=Pressão constante
-#	equil 9		    250	a	275 K		    1ns		    NPT=Pressão constante
-#	equil 10	    275	a	300 K		    5ns		    NPT=Pressão constante
+##                  Heating and Equilibration in 10 Steps:
+| STEP    | TEMPERATURE (in Kelvin) | TIME   | SYSTEM_TYPE             |
+|---------|--------------------------|--------|-------------------------|
+| equil 1 | 0                        | 100 K  | 20 ps                   | NVT = Constant volume
+| equil 2 | 100                      | 100 K  | 1 ns                    | NPT = Constant pressure
+| equil 3 | 100                      | 125 K  | 1 ns                    | NPT = Constant pressure
+| equil 4 | 125                      | 150 K  | 1 ns                    | NPT = Constant pressure
+| equil 5 | 150                      | 175 K  | 1 ns                    | NPT = Constant pressure
+| equil 6 | 175                      | 200 K  | 1 ns                    | NPT = Constant pressure
+| equil 7 | 200                      | 225 K  | 1 ns                    | NPT = Constant pressure
+| equil 8 | 225                      | 250 K  | 1 ns                    | NPT = Constant pressure
+| equil 9 | 250                      | 275 K  | 1 ns                    | NPT = Constant pressure
+| equil 10| 275                      | 300 K  | 5 ns                    | NPT = Constant pressure
 
-## produção:
-### nessa etapa a DM ocorrerá de 10 em 10ns até 100ns ou mais (o tempo de DM vai de cada)
-### para isso o prod.in tem que ter as condições especificas para que seja executado o tempo de 10ns
+## Production:
+### In this step, DM will occur every 10 ns until 100 ns or more (the duration of DM can vary).
+### For this, the prod.in file must have specific conditions for it to run for 10 ns:
 ### nstlim=5000000, dt=0.002,
-### multiplique os valores de nstlim * dt para saber o tempo em ps ex. 
-### 5000000 * 0.002 = 10000 ps = 10ns
+### Multiply the values of nstlim * dt to know the time in ps, e.g.,
+### 5000000 * 0.002 = 10000 ps = 10 ns
 
-Os arquivos para lanzar as replicas estão na pasta scripts
-Mas lembre-se de verificar o nome dos arquivos antes de iniciar
+The files to launch the replicas are in the scripts folder, but remember to check the names of the files before starting.
 -------------------------------------------------------------------------------------------------------------------
 
-## Créditos
-Escrito por: Carlos Gabriel da Silva de Souza
-Adaptado do protocolo amber de Clauber Costa
-E-mail para contato: carlosss_gabriel@hotmail.com
+## Credits
+Written by: Carlos Gabriel da Silva de Souza
+Adapted from the AMBER protocol by Clauber Costa
+Email for contact: carlosss_gabriel@hotmail.com

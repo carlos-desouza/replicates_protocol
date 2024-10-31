@@ -1,5 +1,3 @@
-Claro! Aqui está a tradução para o inglês:
-
 # Protocol Divided into Three Parts
 
 ## Prepare Base System

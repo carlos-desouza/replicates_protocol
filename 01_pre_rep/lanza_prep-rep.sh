@@ -37,6 +37,10 @@ do
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c min7.rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref min7.rst
     else
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c equil$(($i-1)).rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref equil$(($i-1)).rst
+        cpptraj -p $Parm -y equil$i.rst -x equil$i.rst << EOF
+autoimage
+EOF
+        sleep 2
     fi
 done
 

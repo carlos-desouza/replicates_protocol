@@ -11,10 +11,8 @@
 
 cd $SLURM_SUBMIT_DIR
 
-#module load amber22
-source ~/amber22/amber.sh
-module load gnu9/9.4.0
-module load openmpi4/4.1.1
+source /home/users/gabrielc/chem/gcc-13.2/gcc-13.2-all
+source /home/users/gabrielc/chem/amber25/amber.sh
 
 export Step1Dir=../../01_pre_rep
 export Exec=pmemd.cuda

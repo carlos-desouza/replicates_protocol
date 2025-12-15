@@ -9,14 +9,15 @@
 #SBATCH -o slurm/slurm.%j.out              # Nome do arquivo de saída
 #SBATCH -e slurm/slurm.%j.err              # Nome do arquivo de erro
 
-WORKDIR=$PBS_O_WORKDIR
-echo $WORKDIR
-cd $WORKDIR
-module load md/amber22
+cd $SLURM_SUBMIT_DIR
+
+source /home/users/gabrielc/chem/gcc-13.2/gcc-13.2-all
+source /home/users/gabrielc/chem/amber25/amber.sh
+
 #-----------------------------------#
 export Exec=pmemd.cuda
-export Parm='step3_input.parm7'
-export Topo='step3_input.rst7'
+export Parm='complex_box.top'
+export Topo='complex_box.crd'
 export minrc=../arq_entrada/01_min
 export equilrc=../arq_entrada/02_equil/300k
 #----------------------------------#
@@ -40,10 +41,6 @@ do
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c min7.rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref min7.rst
     else
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c equil$(($i-1)).rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref equil$(($i-1)).rst
-        cpptraj -p $Parm -y equil$i.rst -x equil$i.rst << EOF
-autoimage
-EOF
-        sleep 2
     fi
 done
 
@@ -54,7 +51,9 @@ cp ../arq_entrada/03_production/prod_constra.in $equilrc/equil10.in .
 #--------------------------------------------------------------------------------------------------------------------------#
 export inicio=$PWD
 export destino=$PWD/../02_replicas
-for ((i=1; i<=10; i++)) # i é o número de replicas... mudar se precisar
+mkdir $destino
+
+for ((i=1; i<=3; i++)) # i é o número de replicas... mudar se precisar
 do
     mkdir $destino/rep$i ; cp lanza_rep.sh $destino/rep$i/
     sed -i "s/TAL/$i/g" "$destino/rep$i/lanza_rep.sh"

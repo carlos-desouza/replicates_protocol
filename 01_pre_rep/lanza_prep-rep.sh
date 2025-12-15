@@ -1,11 +1,14 @@
 #!/bin/bash
-#PBS -N pre-rep
-#PBS -l select=1:ncpus=1:ngpus=1
-#PBS -l walltime=100:00:00
-#PBS -q CCAD_QGPU
-#PBS -o output.prep
-#PBS -e error.prep
-#-----------------------------------#
+#SBATCH --job-name=BsEst_repTAL   # Nome do job
+#SBATCH --nodes=1                          # Numero de nós
+#SBATCH --ntasks=1                         # Numero de tarefas (uma única tarefa)
+#SBATCH --cpus-per-task=1                  # Numero de CPUs por tarefa
+#SBATCH --gpus 1                           # Numero de GPUs por tarefa
+#SBATCH --time=3-00:00:00                  # Tempo máximo de execução (3 dias)
+#SBATCH --partition=gpu-x                  # Nome da partição
+#SBATCH -o slurm/slurm.%j.out              # Nome do arquivo de saída
+#SBATCH -e slurm/slurm.%j.err              # Nome do arquivo de erro
+
 WORKDIR=$PBS_O_WORKDIR
 echo $WORKDIR
 cd $WORKDIR

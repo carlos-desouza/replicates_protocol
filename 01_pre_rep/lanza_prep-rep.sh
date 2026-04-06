@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=BsEst_repTAL   # Nome do job
+#SBATCH --job-name=prep   # Nome do job
 #SBATCH --nodes=1                          # Numero de nós
 #SBATCH --ntasks=1                         # Numero de tarefas (uma única tarefa)
-#SBATCH --cpus-per-task=1                  # Numero de CPUs por tarefa
+#SBATCH --cpus-per-task=8                  # Numero de CPUs por tarefa
 #SBATCH --gpus 1                           # Numero de GPUs por tarefa
 #SBATCH --time=3-00:00:00                  # Tempo máximo de execução (3 dias)
 #SBATCH --partition=gpu-x                  # Nome da partição
@@ -34,11 +34,13 @@ done
 echo "------------------------------------------------"
 echo "            Minimização terminou!              "
 echo "------------------------------------------------"
-for ((i=1; i<=9; i++)) ##Loop over equil steps
+for ((i=1; i<=10; i++)) ##Loop over equil steps
 do
     if [ $i -eq 1 ]
     then
+        export Exec="mpirun -np 8 --oversubscribe pmemd.MPI"
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c min7.rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref min7.rst
+        export Exec="pmemd.cuda"
     else
         $Exec -O -i $equilrc/equil$i.in -p $Parm -c equil$(($i-1)).rst -o equil$i.out -r equil$i.rst -x equil$i.mdcrd -ref equil$(($i-1)).rst
     fi
@@ -47,7 +49,7 @@ done
 echo "------------------------------------------------"
 echo "      Aquecimento e equilibrio terminou!        "
 echo "------------------------------------------------"
-cp ../arq_entrada/03_production/prod_constra.in $equilrc/equil10.in .
+cp ../arq_entrada/03_production/prod_constra.in $equilrc/equil.in .
 #--------------------------------------------------------------------------------------------------------------------------#
 export inicio=$PWD
 export destino=$PWD/../02_replicas
@@ -57,7 +59,7 @@ for ((i=1; i<=3; i++)) # i é o número de replicas... mudar se precisar
 do
     mkdir $destino/rep$i ; cp lanza_rep.sh $destino/rep$i/
     sed -i "s/TAL/$i/g" "$destino/rep$i/lanza_rep.sh"
-    cd $destino/rep$i ; qsub $destino/rep$i/lanza_rep.sh ; cd $inicio
+    cd $destino/rep$i ; sbatch $destino/rep$i/lanza_rep.sh ; cd $inicio
 done
 echo "------------------------------------------------"
 echo "       Replicas submetidas com sucesso!         "

@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=BsEst_repTAL   # Nome do job
+#SBATCH --job-name=repTAL   # Nome do job
 #SBATCH --nodes=1                          # Numero de nós
 #SBATCH --ntasks=1                         # Numero de tarefas (uma única tarefa)
-#SBATCH --cpus-per-task=1                  # Numero de CPUs por tarefa
+#SBATCH --cpus-per-task=8                  # Numero de CPUs por tarefa
 #SBATCH --gpus 1                           # Numero de GPUs por tarefa
 #SBATCH --time=3-00:00:00                  # Tempo máximo de execução (3 dias)
 #SBATCH --partition=gpu-x                  # Nome da partição
@@ -18,13 +18,13 @@ export Step1Dir=../../01_pre_rep
 export Exec=pmemd.cuda
 export Parm=complex_box.top
 
-$Exec -O -i $Step1Dir/equil10.in -p $Step1Dir/$Parm -c $Step1Dir/equil9.rst -o equil10.out -r equil10.rst -x equil10.mdcrd -ref $Step1Dir/equil9.rst      
-for ((i=1; i<=50; i++))
+$Exec -O -i $Step1Dir/equil.in -p $Step1Dir/$Parm -c $Step1Dir/equil10.rst -o equil.out -r equil.rst -x equil.mdcrd -ref $Step1Dir/equil10.rst      
+for ((i=1; i<=50; i++))     # 500ns
 do
     if [ $i -eq 1 ]; then
-        $Exec -O -i $Step1Dir/prod.in -p $Step1Dir/$Parm -c equil10.rst -o prod${i}0ns.out -r prod${i}0ns.rst -x prod${i}0ns.mdcrd -ref equil10.rst           
+        $Exec -O -i $Step1Dir/prod_constra.in -p $Step1Dir/$Parm -c equil.rst -o prod${i}0ns.out -r prod${i}0ns.rst -x prod${i}0ns.mdcrd -ref equil.rst           
     else
-        $Exec -O -i $Step1Dir/prod.in -p $Step1Dir/$Parm -c prod$((i-1))0ns.rst -o prod${i}0ns.out -r prod${i}0ns.rst -x prod${i}0ns.mdcrd -ref prod$((i-1))0ns.rst
+        $Exec -O -i $Step1Dir/prod_constra.in -p $Step1Dir/$Parm -c prod$((i-1))0ns.rst -o prod${i}0ns.out -r prod${i}0ns.rst -x prod${i}0ns.mdcrd -ref prod$((i-1))0ns.rst
     fi
 done
 ## Ultima etapa de equilibrio + produção de 100ns

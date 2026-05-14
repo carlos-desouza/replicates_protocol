@@ -1,0 +1,21 @@
+MD heat 10 --> 300 (9 ns) NVT
+&cntrl
+  imin=0, irest=1, ntx=5,
+  nstlim=4000000, dt=0.002,
+  ntc=2, ntf=2,
+  cut=8.0, ntb=2,
+  ntpr=500, ntwx=500,
+  ntt=3, gamma_ln=2.0,
+  ntp=1, taup=2.0,
+  ig=-1, ioutfm=1,
+  ntr=1, restraint_wt = 5.0, restraintmask = '(:PET<:5.0) & !(:WAT,Na+,Cl-)',
+/
+&wt type='TEMP0', istep1=0,       istep2=500000,   value1=100.0, value2=100.0 /
+&wt type='TEMP0', istep1=500001,  istep2=1000000,  value1=100.0, value2=125.0 /
+&wt type='TEMP0', istep1=1000001, istep2=1500000,  value1=125.0, value2=150.0 /
+&wt type='TEMP0', istep1=1500001, istep2=2000000,  value1=150.0, value2=175.0 /
+&wt type='TEMP0', istep1=2000001, istep2=2500000,  value1=175.0, value2=200.0 /
+&wt type='TEMP0', istep1=2500001, istep2=3000000,  value1=200.0, value2=225.0 /
+&wt type='TEMP0', istep1=3000001, istep2=3500000,  value1=225.0, value2=250.0 /
+&wt type='TEMP0', istep1=3500001, istep2=4000000,  value1=250.0, value2=273.0 /
+&wt type='END' /
